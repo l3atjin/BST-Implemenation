@@ -157,7 +157,7 @@ public:
     //           by the sorted ordering of the BinarySearchTree.
 
     // Big Three for Iterator not needed
-
+	
   public:
     Iterator()
       : root(nullptr), current_node(nullptr) {}
@@ -349,6 +349,21 @@ private:
 	return 1 + size_impl(node->left) + size_impl(node->right);
   }
 
+  bool sizeEqual(NodeType *otherTree)
+  {
+    int size = helper_size(root);
+    int size_other = helper_size(otherTree);
+    return size == size_other;
+  }
+
+  int helper_size(NodeType *node) {
+	if (!node)
+	{
+		return 0;
+	}
+	return 1 + size_impl(node->lchild) + size_impl(node->rchild);
+  }
+
   // EFFECTS: Returns the height of the tree rooted at 'node', which is the
   //          number of nodes in the longest path from the 'node' to a leaf.
   //          The height of an empty tree is 0.
@@ -526,6 +541,32 @@ private:
 	  return min_element_impl(node->left);
   }
 
+  bool isSlim() {
+	  return helper(root)
+  }
+
+  bool helper(NodeType *node)
+  {
+    if(node->lchild && node->rchild)
+    {
+      return false;
+    }
+    if(!node)
+    {
+      return true;
+    }
+    else if(node->lchild)
+    {
+      return helper(node->lchild);
+    }
+    else
+    {
+      return helper(node->rchild);
+    }
+    
+    
+  }
+
   // EFFECTS : Returns a pointer to the Node containing the maximum element
   //           in the tree rooted at 'node' or a null pointer if the tree is empty.
   // NOTE: This function must be tail recursive.
@@ -552,16 +593,23 @@ private:
 	  {
 		  return true;
 	  }
-	  else if (node->right && node->left)
+	  if (node->left)
 	  {
-		  if (!less(max_element_impl(node->left)->datum, node->datum)
-			  || less(min_element_impl(node->right)->datum, node->datum))
+		  if (!less(max_element_impl(node->left)->datum, node->datum))
 		  {
 			  return false;
 		  }
+		  return check_sorting_invariant_impl(node->left, less);
 	  }
-	  return check_sorting_invariant_impl(node->left, less);
-	  return check_sorting_invariant_impl(node->right, less);
+	  if (node->right)
+	  {
+		  if (less(min_element_impl(node->right)->datum, node->datum))
+		  {
+			  return false;
+		  }
+		  return check_sorting_invariant_impl(node->right, less);
+	  }
+	  return true;
   }
 
   // EFFECTS : Traverses the tree rooted at 'node' using an in-order traversal,
@@ -621,7 +669,7 @@ private:
 	  {
 		  return node;
 	  }
-	  else if (less(val, node->datum) && !less(val, node->left->datum))
+	  else if (less(val, node->datum) && !less(val, max_element_impl(node->left)->datum))
 	  {
 		  return node;
 	  }
